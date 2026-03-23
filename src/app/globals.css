@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@media print {
+  body {
+    font-size: 12pt;
+    line-height: 1.6;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-content {
+    max-width: 100% !important;
+  }
+  .sheet-section {
+    page-break-inside: avoid;
+  }
+}

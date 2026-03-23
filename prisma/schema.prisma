@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  songs       Song[]
+}
+
+model Sheet {
+  id        String   @id @default(cuid())
+  name      String?
+  fileUrl   String?
+  notes     String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  songId    String
+  song      Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@index([songId])
+}
+
+model Song {
+  id          String      @id @default(cuid())
+  title       String
+  titlePinyin String?
+  lyrics      String
+  lyricsPlain String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  categoryId  String?
+  sheets      Sheet[]
+  category    Category?   @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([title])
+}
