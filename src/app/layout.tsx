@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "赞美诗歌管理系统",
-  description: "管理和分享赞美诗歌歌单与乐谱",
+  title: "诗歌库",
+  description: "管理和分享诗歌歌单与乐谱",
 };
 
 export default function RootLayout({

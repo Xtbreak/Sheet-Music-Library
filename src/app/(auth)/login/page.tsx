@@ -55,7 +55,7 @@ export default function LoginPage() {
             返回首页
           </button>
           <h2 className="text-center text-3xl font-bold text-gray-900">
-            赞美诗歌管理系统
+            诗歌库管理系统
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             管理员登录

@@ -64,9 +64,9 @@ npm run dev
 ```bash
 npm run build
 # 方式一：使用 ecosystem.config.js（可自定义内存限制、自动重启等参数）
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.js 
 # 方式二：直接使用 package.json
-pm2 start package.json
+pm2 start package.json --name music-demo
 ```
 
 后续管理：`pm2 restart music-demo` / `pm2 stop music-demo` / `pm2 logs music-demo`
@@ -77,7 +77,6 @@ pm2 start package.json
 
 用户上传的曲谱图片存储在 `uploads/sheets/` 目录中，通过 API 路由 `/api/files/sheets/{filename}` 提供访问。首次部署后该目录会由上传接口自动创建。
 
-> `uploads/` 已在 `.gitignore` 中排除，上传的文件不会被提交到 Git。
 
 ## 常用命令
 

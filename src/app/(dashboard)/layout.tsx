@@ -31,7 +31,7 @@ export default function DashboardLayout({
             <div className="flex items-center min-w-0">
               <div className="flex-shrink-0">
                 <Link href="/" className="text-base sm:text-xl font-bold text-gray-900 hover:text-blue-600 truncate block max-w-[120px] sm:max-w-none">
-                  赞美诗歌
+                  诗歌库
                 </Link>
               </div>
               <nav className="ml-3 sm:ml-6 flex space-x-1 sm:space-x-4">
