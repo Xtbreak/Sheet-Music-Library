@@ -15,8 +15,8 @@
 ### 1. 克隆项目
 
 ```bash
-git clone <your-repo-url>
-cd music-demo
+git clone https://github.com/Xtbreak/Sheet-Music-Library.git
+cd Sheet-Music-Library
 ```
 
 ### 2. 安装依赖
@@ -39,19 +39,7 @@ cp .env.example .env
 npx prisma db push
 ```
 
-### 5. 创建管理员
-
-启动服务后，在浏览器中访问以下地址创建初始管理员（仅限首次）：
-
-```
-http://localhost:3000/api/seed
-```
-
-默认账号：`admin` / `admin123`，登录后请立即修改密码。
-
-> 此接口仅在数据库中没有任何管理员时可用，创建一次后自动失效。
-
-### 6. 启动服务
+### 5. 启动服务
 
 **开发模式：**
 
@@ -64,7 +52,7 @@ npm run dev
 ```bash
 npm run build
 # 方式一：使用 ecosystem.config.js（可自定义内存限制、自动重启等参数）
-pm2 start ecosystem.config.js 
+pm2 start ecosystem.config.js
 # 方式二：直接使用 package.json
 pm2 start package.json --name music-demo
 ```
@@ -72,6 +60,18 @@ pm2 start package.json --name music-demo
 后续管理：`pm2 restart music-demo` / `pm2 stop music-demo` / `pm2 logs music-demo`
 
 打开浏览器访问 [http://localhost:3000](http://localhost:3000)。
+
+### 6. 创建管理员
+
+启动服务后，在浏览器中访问以下地址创建初始管理员（仅限首次）：
+
+```
+http://localhost:3000/api/seed
+```
+
+默认账号：`admin` / `admin123`，登录后请立即修改密码。
+
+> 此接口仅在数据库中没有任何管理员时可用，创建一次后自动失效。
 
 ## 上传文件存储
 
