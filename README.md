@@ -35,8 +35,11 @@ cp .env.example .env
 
 - `NEXTAUTH_SECRET` - 生成密钥：`openssl rand -base64 32`
 - `NEXTAUTH_URL` - 必须与实际访问地址一致（如 `https://your-domain.com`）
+- `SECURE_COOKIE` - 是否启用安全 Cookie，默认 `true`。内部测试用 HTTP 时可设为 `false`
 
-> **安全提示**：生产环境必须使用 HTTPS。HTTP 存在密码窃听、Cookie 劫持等安全风险。可通过宝塔面板申请免费 SSL 证书，或使用 Cloudflare。
+> **安全提示**：生产环境建议使用 HTTPS。HTTP 存在密码窃听、Cookie 劫持等风险。可通过宝塔面板申请免费 SSL 证书，或使用 Cloudflare。
+
+
 
 ### 4. 初始化数据库
 
