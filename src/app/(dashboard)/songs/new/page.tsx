@@ -232,7 +232,7 @@ export default function NewSongPage() {
 
             {sheets.length === 0 && (
               <p className="text-gray-400 text-center py-6 border-2 border-dashed border-gray-200 rounded-lg">
-                暂无曲谱，点击"添加曲谱"按钮上传
+                暂无曲谱，点击「添加曲谱」按钮上传
               </p>
             )}
 
