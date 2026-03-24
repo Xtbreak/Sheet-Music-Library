@@ -343,42 +343,40 @@ export default function AdminsPage() {
             <p className="text-gray-500 text-center py-10">暂无管理员</p>
           ) : (
             admins.map((admin) => (
-              <div key={admin.id} className="p-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-900">{admin.username}</span>
-                      {admin.id === session.user.id && (
-                        <span className="text-xs text-gray-400">（当前）</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      {admin.role === "super" ? (
-                        <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs">超级管理员</span>
-                      ) : (
-                        <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">管理员</span>
-                      )}
-                      <span className="text-xs text-gray-500">
-                        {new Date(admin.createdAt).toLocaleDateString("zh-CN")}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex gap-3 ml-2">
-                    <button
-                      onClick={() => openEditForm(admin)}
-                      className="text-sm text-blue-600"
-                    >
-                      编辑
-                    </button>
-                    {admin.id !== session.user.id && (
-                      <button
-                        onClick={() => handleDelete(admin.id)}
-                        className="text-sm text-red-600"
-                      >
-                        删除
-                      </button>
+              <div key={admin.id} className="p-4 flex justify-between items-center">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-gray-900">{admin.username}</span>
+                    {admin.id === session.user.id && (
+                      <span className="text-xs text-gray-400">（当前）</span>
                     )}
                   </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    {admin.role === "super" ? (
+                      <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs">超级管理员</span>
+                    ) : (
+                      <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">管理员</span>
+                    )}
+                    <span className="text-xs text-gray-500">
+                      {new Date(admin.createdAt).toLocaleDateString("zh-CN")}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex gap-3 ml-2 flex-shrink-0">
+                  <button
+                    onClick={() => openEditForm(admin)}
+                    className="text-sm text-blue-600"
+                  >
+                    编辑
+                  </button>
+                  {admin.id !== session.user.id && (
+                    <button
+                      onClick={() => handleDelete(admin.id)}
+                      className="text-sm text-red-600"
+                    >
+                      删除
+                    </button>
+                  )}
                 </div>
               </div>
             ))
