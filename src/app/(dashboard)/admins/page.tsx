@@ -337,70 +337,121 @@ export default function AdminsPage() {
 
       {/* 管理员列表 */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                用户名
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                角色
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                创建时间
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                操作
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {admins.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="px-6 py-10 text-center text-gray-500">
-                  暂无管理员
-                </td>
-              </tr>
-            ) : (
-              admins.map((admin) => (
-                <tr key={admin.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {admin.username}
-                    {admin.id === session.user.id && (
-                      <span className="ml-2 text-xs text-gray-400">（当前）</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    {admin.role === "super" ? (
-                      <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs">超级管理员</span>
-                    ) : (
-                      <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">管理员</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(admin.createdAt).toLocaleDateString("zh-CN")}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm space-x-3">
+        {/* 手机端：卡片列表 */}
+        <div className="sm:hidden divide-y divide-gray-200">
+          {admins.length === 0 ? (
+            <p className="text-gray-500 text-center py-10">暂无管理员</p>
+          ) : (
+            admins.map((admin) => (
+              <div key={admin.id} className="p-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-gray-900">{admin.username}</span>
+                      {admin.id === session.user.id && (
+                        <span className="text-xs text-gray-400">（当前）</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      {admin.role === "super" ? (
+                        <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs">超级管理员</span>
+                      ) : (
+                        <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">管理员</span>
+                      )}
+                      <span className="text-xs text-gray-500">
+                        {new Date(admin.createdAt).toLocaleDateString("zh-CN")}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 ml-2">
                     <button
                       onClick={() => openEditForm(admin)}
-                      className="text-blue-600 hover:text-blue-900"
+                      className="text-sm text-blue-600"
                     >
                       编辑
                     </button>
                     {admin.id !== session.user.id && (
                       <button
                         onClick={() => handleDelete(admin.id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-sm text-red-600"
                       >
                         删除
                       </button>
                     )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* 桌面端：表格 */}
+        <div className="hidden sm:block">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  用户名
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  角色
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  创建时间
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  操作
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {admins.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-10 text-center text-gray-500">
+                    暂无管理员
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                admins.map((admin) => (
+                  <tr key={admin.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {admin.username}
+                      {admin.id === session.user.id && (
+                        <span className="ml-2 text-xs text-gray-400">（当前）</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      {admin.role === "super" ? (
+                        <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs">超级管理员</span>
+                      ) : (
+                        <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">管理员</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(admin.createdAt).toLocaleDateString("zh-CN")}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm space-x-3">
+                      <button
+                        onClick={() => openEditForm(admin)}
+                        className="text-blue-600 hover:text-blue-900"
+                      >
+                        编辑
+                      </button>
+                      {admin.id !== session.user.id && (
+                        <button
+                          onClick={() => handleDelete(admin.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          删除
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
