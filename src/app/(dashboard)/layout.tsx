@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 export default function DashboardLayout({
@@ -10,6 +10,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
 
   const isSuper = session?.user?.role === "super";
@@ -57,7 +58,7 @@ export default function DashboardLayout({
                     {session?.user?.username}
                   </span>
                   <button
-                    onClick={() => signOut({ callbackUrl: "/" })}
+                    onClick={() => signOut({ redirect: false }).then(() => router.push("/"))}
                     className="text-xs sm:text-sm text-red-600 hover:text-red-800"
                   >
                     退出

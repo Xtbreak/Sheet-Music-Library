@@ -51,10 +51,11 @@ npm run dev
 
 ```bash
 npm run build
-# 方式一：使用 ecosystem.config.js（可自定义内存限制、自动重启等参数）
+# 方式一：直接使用 pm2
+pm2 start npm --name "music-demo" -- start
+pm2 save
+# 方式二：使用 ecosystem.config.js（可自定义内存限制、自动重启等参数）
 pm2 start ecosystem.config.js
-# 方式二：直接使用 package.json
-pm2 start package.json --name music-demo
 ```
 
 后续管理：`pm2 restart music-demo` / `pm2 stop music-demo` / `pm2 logs music-demo`
