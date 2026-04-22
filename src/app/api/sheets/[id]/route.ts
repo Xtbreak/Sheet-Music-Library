@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { normalizeKeySignature } from "@/lib/key-signatures";
+import { canManageContent } from "@/lib/roles";
 
 // 更新乐谱
 export async function PUT(
@@ -12,15 +14,19 @@ export async function PUT(
     if (!session) {
       return NextResponse.json({ error: "未授权" }, { status: 401 });
     }
+    if (!canManageContent(session.user.role)) {
+      return NextResponse.json({ error: "无权限" }, { status: 403 });
+    }
 
     const { id } = await params;
     const body = await request.json();
-    const { name, fileUrl, notes, sortOrder } = body;
+    const { name, keySignature, fileUrl, notes, sortOrder } = body;
 
     const sheet = await prisma.sheet.update({
       where: { id },
       data: {
         name,
+        keySignature: normalizeKeySignature(keySignature),
         fileUrl,
         notes,
         sortOrder,
@@ -45,6 +51,9 @@ export async function DELETE(
     const session = await auth();
     if (!session) {
       return NextResponse.json({ error: "未授权" }, { status: 401 });
+    }
+    if (!canManageContent(session.user.role)) {
+      return NextResponse.json({ error: "无权限" }, { status: 403 });
     }
 
     const { id } = await params;

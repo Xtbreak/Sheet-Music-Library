@@ -2,12 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { auth } from "@/lib/auth";
+import { canManageContent } from "@/lib/roles";
 
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
     if (!session) {
       return NextResponse.json({ error: "未授权" }, { status: 401 });
+    }
+    if (!canManageContent(session.user.role)) {
+      return NextResponse.json({ error: "无权限" }, { status: 403 });
     }
 
     const formData = await request.formData();

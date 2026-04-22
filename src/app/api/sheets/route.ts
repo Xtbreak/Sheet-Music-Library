@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { normalizeKeySignature } from "@/lib/key-signatures";
+import { canManageContent } from "@/lib/roles";
 
 // 创建乐谱
 export async function POST(request: NextRequest) {
@@ -9,9 +11,12 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: "未授权" }, { status: 401 });
     }
+    if (!canManageContent(session.user.role)) {
+      return NextResponse.json({ error: "无权限" }, { status: 403 });
+    }
 
     const body = await request.json();
-    const { songId, name, fileUrl, notes, sortOrder } = body;
+    const { songId, name, keySignature, fileUrl, notes, sortOrder } = body;
 
     if (!songId || !fileUrl) {
       return NextResponse.json(
@@ -24,6 +29,7 @@ export async function POST(request: NextRequest) {
       data: {
         songId,
         name,
+        keySignature: normalizeKeySignature(keySignature),
         fileUrl,
         notes,
         sortOrder: sortOrder || 0,

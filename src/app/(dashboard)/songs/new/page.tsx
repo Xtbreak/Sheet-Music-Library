@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { KEY_SIGNATURE_OPTIONS } from "@/lib/key-signatures";
 
 interface Category {
   id: string;
@@ -12,6 +13,7 @@ interface Category {
 interface SheetForm {
   id?: string;
   name: string;
+  keySignature: string;
   fileUrl: string;
   notes: string;
   sortOrder: number;
@@ -51,6 +53,7 @@ export default function NewSongPage() {
       ...sheets,
       {
         name: "",
+        keySignature: "",
         fileUrl: "",
         notes: "",
         sortOrder: sheets.length,
@@ -150,6 +153,7 @@ export default function NewSongPage() {
           body: JSON.stringify({
             songId: song.id,
             name: sheet.name || null,
+            keySignature: sheet.keySignature || null,
             fileUrl: sheet.fileUrl || null,
             notes: sheet.notes || null,
             sortOrder: sheet.sortOrder,
@@ -268,6 +272,25 @@ export default function NewSongPage() {
                       />
                     </div>
 
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600">
+                        曲调
+                      </label>
+                      <select
+                        value={sheet.keySignature}
+                        onChange={(e) =>
+                          updateSheet(index, { keySignature: e.target.value })
+                        }
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                      >
+                        {KEY_SIGNATURE_OPTIONS.map((option) => (
+                          <option key={option.value || "empty"} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
                     {/* 图片上传 */}
                     <div>
                       <label className="block text-xs font-medium text-gray-600">
@@ -291,7 +314,7 @@ export default function NewSongPage() {
                             <img
                               src={sheet.fileUrl}
                               alt="曲谱预览"
-                              className="max-h-48 mx-auto rounded"
+                              className="w-full h-56 object-contain bg-white mx-auto rounded border border-gray-200"
                             />
                             <button
                               type="button"

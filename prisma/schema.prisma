@@ -27,6 +27,7 @@ model Category {
 model Sheet {
   id        String   @id @default(cuid())
   name      String?
+  keySignature String?
   fileUrl   String?
   notes     String?
   sortOrder Int      @default(0)

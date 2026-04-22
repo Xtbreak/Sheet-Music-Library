@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { username, password } = body;
+  const { username, password, role } = body;
 
     if (!username || !password) {
       return NextResponse.json({ error: "用户名和密码不能为空" }, { status: 400 });
@@ -43,12 +43,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "用户名已存在" }, { status: 400 });
     }
 
+    const normalizedRole = role === "viewer" ? "viewer" : "admin";
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const admin = await prisma.admin.create({
       data: {
         username,
         password: hashedPassword,
-        role: "admin",
+        role: normalizedRole,
       },
       select: { id: true, username: true, role: true, createdAt: true },
     });

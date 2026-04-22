@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { KEY_SIGNATURE_OPTIONS } from "@/lib/key-signatures";
+import { canManageContent } from "@/lib/roles";
 
 interface Song {
   id: string;
@@ -18,12 +20,16 @@ interface Category {
 }
 
 export default function DashboardPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const isAuthLoading = status === "loading";
+  const canManage = canManageContent(session?.user?.role);
   const [songs, setSongs] = useState<Song[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [keySignature, setKeySignature] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -45,6 +51,7 @@ export default function DashboardPage() {
       params.set("pageSize", "20");
       if (keyword) params.set("keyword", keyword);
       if (categoryId) params.set("categoryId", categoryId);
+  if (keySignature) params.set("keySignature", keySignature);
 
       const res = await fetch(`/api/songs?${params}`);
       const data = await res.json();
@@ -54,6 +61,7 @@ export default function DashboardPage() {
       console.error("获取歌曲列表失败:", error);
     } finally {
       setLoading(false);
+      setInitialized(true);
     }
   };
 
@@ -63,7 +71,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchSongs();
-  }, [page, categoryId]);
+  }, [page, categoryId, keySignature]);
 
   const handleSearch = () => {
     setPage(1);
@@ -94,7 +102,7 @@ export default function DashboardPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">歌曲列表</h1>
-        {session && (
+        {!isAuthLoading && canManage && (
           <Link
             href="/songs/new"
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -131,6 +139,21 @@ export default function DashboardPage() {
                 </option>
               ))}
             </select>
+            <select
+              value={keySignature}
+              onChange={(e) => {
+                setKeySignature(e.target.value);
+                setPage(1);
+              }}
+              className="flex-1 sm:w-40 px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base"
+            >
+              <option value="">全部曲调</option>
+              {KEY_SIGNATURE_OPTIONS.filter((option) => option.value).map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
             <button
               onClick={handleSearch}
               className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm sm:text-base whitespace-nowrap"
@@ -143,7 +166,7 @@ export default function DashboardPage() {
 
       {/* 歌曲列表 */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        {loading ? (
+        {!initialized || loading ? (
           <div className="text-center py-10">加载中...</div>
         ) : songs.length === 0 ? (
           <p className="text-gray-500 text-center py-10">暂无歌曲，请添加</p>
@@ -161,7 +184,7 @@ export default function DashboardPage() {
                     <h3 className="font-medium text-gray-900 text-sm leading-tight flex-1 min-w-0 mr-2">
                       {song.title}
                     </h3>
-                    {session && (
+                    {canManage && (
                       <div className="flex gap-2 flex-shrink-0">
                         <Link
                           href={`/songs/${song.id}/edit`}
@@ -208,7 +231,7 @@ export default function DashboardPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       曲谱数
                     </th>
-                    {session && (
+                    {canManage && (
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         操作
                       </th>
@@ -232,7 +255,7 @@ export default function DashboardPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {song._count?.sheets || 0}
                       </td>
-                      {session && (
+                      {canManage && (
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                           <Link
                             href={`/songs/${song.id}`}

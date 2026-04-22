@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { KEY_SIGNATURE_OPTIONS, normalizeKeySignature } from "@/lib/key-signatures";
 
 interface Category {
   id: string;
@@ -11,6 +12,7 @@ interface Category {
 interface SheetForm {
   id?: string;
   name: string;
+  keySignature: string;
   fileUrl: string;
   notes: string;
   sortOrder: number;
@@ -65,6 +67,7 @@ export default function EditSongPage() {
             data.sheets.map((s: Record<string, unknown>) => ({
               id: s.id as string,
               name: (s.name as string) || "",
+              keySignature: normalizeKeySignature((s.keySignature as string) || "") || "",
               fileUrl: (s.fileUrl as string) || "",
               notes: (s.notes as string) || "",
               sortOrder: (s.sortOrder as number) || 0,
@@ -84,6 +87,7 @@ export default function EditSongPage() {
       ...sheets,
       {
         name: "",
+        keySignature: "",
         fileUrl: "",
         notes: "",
         sortOrder: sheets.length,
@@ -191,6 +195,7 @@ export default function EditSongPage() {
             body: JSON.stringify({
               songId: params.id,
               name: sheet.name || null,
+              keySignature: sheet.keySignature || null,
               fileUrl: sheet.fileUrl || null,
               notes: sheet.notes || null,
               sortOrder: sheet.sortOrder,
@@ -202,6 +207,7 @@ export default function EditSongPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               name: sheet.name || null,
+              keySignature: sheet.keySignature || null,
               fileUrl: sheet.fileUrl || null,
               notes: sheet.notes || null,
               sortOrder: sheet.sortOrder,
@@ -344,6 +350,25 @@ export default function EditSongPage() {
                         />
                       </div>
 
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600">
+                          曲调
+                        </label>
+                        <select
+                          value={sheet.keySignature}
+                          onChange={(e) =>
+                            updateSheet(index, { keySignature: e.target.value })
+                          }
+                          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                        >
+                          {KEY_SIGNATURE_OPTIONS.map((option) => (
+                            <option key={option.value || "empty"} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
                       {/* 图片上传 */}
                       <div>
                         <label className="block text-xs font-medium text-gray-600">
@@ -367,7 +392,7 @@ export default function EditSongPage() {
                               <img
                                 src={sheet.fileUrl}
                                 alt="曲谱预览"
-                                className="max-h-48 mx-auto rounded"
+                                className="w-full h-56 object-contain bg-white mx-auto rounded border border-gray-200"
                               />
                               <button
                                 type="button"

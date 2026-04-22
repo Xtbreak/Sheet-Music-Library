@@ -4,10 +4,17 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import {
+  KEY_SIGNATURE_OPTIONS,
+  getKeySignatureLabel,
+  normalizeKeySignature,
+} from "@/lib/key-signatures";
+import { canManageContent } from "@/lib/roles";
 
 interface Sheet {
   id: string;
   name: string | null;
+  keySignature: string | null;
   fileUrl: string | null;
   notes: string | null;
   sortOrder: number;
@@ -26,6 +33,7 @@ export default function SongDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { data: session } = useSession();
+  const canManage = canManageContent(session?.user?.role);
   const [song, setSong] = useState<Song | null>(null);
   const [loading, setLoading] = useState(true);
   const [showSheetForm, setShowSheetForm] = useState(false);
@@ -36,6 +44,7 @@ export default function SongDetailPage() {
 
   const [sheetForm, setSheetForm] = useState({
     name: "",
+    keySignature: "",
     fileUrl: "",
     notes: "",
     sortOrder: 0,
@@ -66,6 +75,7 @@ export default function SongDetailPage() {
     setEditingSheet(null);
     setSheetForm({
       name: "",
+      keySignature: "",
       fileUrl: "",
       notes: "",
       sortOrder: 0,
@@ -77,6 +87,7 @@ export default function SongDetailPage() {
     setEditingSheet(sheet);
     setSheetForm({
       name: sheet.name || "",
+      keySignature: normalizeKeySignature(sheet.keySignature) || "",
       fileUrl: sheet.fileUrl || "",
       notes: sheet.notes || "",
       sortOrder: sheet.sortOrder,
@@ -216,7 +227,7 @@ export default function SongDetailPage() {
               </span>
             )}
           </div>
-          {session && (
+          {canManage && (
             <Link
               href={`/songs/${song.id}/edit`}
               className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
@@ -231,7 +242,7 @@ export default function SongDetailPage() {
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold text-gray-900">乐谱 ({song.sheets.length})</h2>
-          {session && (
+          {canManage && (
             <button
               onClick={openAddSheetForm}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -255,11 +266,16 @@ export default function SongDetailPage() {
                     <h3 className="font-medium text-gray-900">
                       {sheet.name || "曲谱"}
                     </h3>
+                    {sheet.keySignature && (
+                      <p className="text-xs text-blue-700 mt-1">
+                        曲调：{getKeySignatureLabel(sheet.keySignature)}
+                      </p>
+                    )}
                     {sheet.notes && (
                       <p className="text-sm text-gray-500 mt-2">{sheet.notes}</p>
                     )}
                   </div>
-                  {session && (
+                  {canManage && (
                     <div className="flex space-x-2 flex-shrink-0">
                       <button
                         onClick={() => openEditSheetForm(sheet)}
@@ -281,7 +297,7 @@ export default function SongDetailPage() {
                     <img
                       src={sheet.fileUrl}
                       alt={sheet.name || "曲谱"}
-                      className="max-w-full rounded border border-gray-200"
+                      className="w-full h-72 object-contain bg-white rounded border border-gray-200"
                     />
                     <a
                       href={sheet.fileUrl}
@@ -325,6 +341,25 @@ export default function SongDetailPage() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  曲调
+                </label>
+                <select
+                  value={sheetForm.keySignature}
+                  onChange={(e) =>
+                    setSheetForm({ ...sheetForm, keySignature: e.target.value })
+                  }
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  {KEY_SIGNATURE_OPTIONS.map((option) => (
+                    <option key={option.value || "empty"} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* 图片上传区域 */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">
@@ -348,7 +383,7 @@ export default function SongDetailPage() {
                       <img
                         src={sheetForm.fileUrl}
                         alt="乐谱预览"
-                        className="max-h-64 mx-auto rounded"
+                        className="w-full h-72 object-contain bg-white mx-auto rounded border border-gray-200"
                       />
                       <button
                         type="button"

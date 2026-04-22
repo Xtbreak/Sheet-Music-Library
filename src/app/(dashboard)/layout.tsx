@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { canManageContent } from "@/lib/roles";
 
 export default function DashboardLayout({
   children,
@@ -11,11 +12,15 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const isAuthLoading = status === "loading";
 
   const isSuper = session?.user?.role === "super";
+  const canManage = canManageContent(session?.user?.role);
 
-  const navItems = session
+  const navItems = isAuthLoading
+    ? []
+    : session && canManage
     ? [
         { href: "/", label: "歌曲管理" },
         { href: "/categories", label: "分类管理" },
@@ -52,10 +57,12 @@ export default function DashboardLayout({
               </nav>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
-              {session ? (
+              {isAuthLoading ? (
+                <span className="text-xs sm:text-sm text-gray-400">加载中...</span>
+              ) : session ? (
                 <>
                   <span className="text-xs sm:text-sm text-gray-600">
-                    {session?.user?.username}
+                    {session?.user?.username || session?.user?.name || "已登录"}
                   </span>
                   <button
                     onClick={() => signOut({ redirect: false }).then(() => router.push("/"))}

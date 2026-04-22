@@ -24,6 +24,11 @@ async function getAdmin(username: string) {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  // 开发环境默认允许 HTTP；生产环境默认要求 HTTPS，可通过 SECURE_COOKIE 显式覆盖
+  // SECURE_COOKIE=true  -> 强制 secure
+  // SECURE_COOKIE=false -> 关闭 secure
+  // 未配置时：production=true, development=false
+  
   providers: [
     Credentials({
       name: "credentials",
@@ -77,7 +82,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.SECURE_COOKIE !== "false",
+        secure:
+          process.env.SECURE_COOKIE === "true"
+            ? true
+            : process.env.SECURE_COOKIE === "false"
+              ? false
+              : process.env.NODE_ENV === "production",
       },
     },
   },

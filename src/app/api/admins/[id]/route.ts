@@ -16,7 +16,7 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { username, password } = body;
+  const { username, password, role } = body;
 
     // 检查用户名是否已存在
     if (username) {
@@ -31,10 +31,17 @@ export async function PUT(
       }
     }
 
-    const updateData: { username?: string; password?: string } = {};
+    const updateData: { username?: string; password?: string; role?: string } = {};
     if (username) updateData.username = username;
     if (password) {
       updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    if (role === "admin" || role === "viewer") {
+      if (session.user.id === id) {
+        return NextResponse.json({ error: "不能修改自己的角色" }, { status: 400 });
+      }
+      updateData.role = role;
     }
 
     await prisma.admin.update({

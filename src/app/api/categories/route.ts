@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { canManageContent } from "@/lib/roles";
 
 // 获取分类列表
 export async function GET() {
@@ -29,6 +30,9 @@ export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session) {
       return NextResponse.json({ error: "未授权" }, { status: 401 });
+    }
+    if (!canManageContent(session.user.role)) {
+      return NextResponse.json({ error: "无权限" }, { status: 403 });
     }
 
     const body = await request.json();

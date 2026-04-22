@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
+import { canManageContent } from "@/lib/roles";
 
 // 仅检查页面路由的认证，API 路由由各自的 handler 自行处理认证
 export async function middleware(request: NextRequest) {
@@ -24,6 +25,11 @@ export async function middleware(request: NextRequest) {
   if (!session) {
     const loginUrl = new URL("/login", request.url);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // 普通用户仅可浏览公开页面（列表与详情）
+  if (!canManageContent(session.user?.role)) {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();

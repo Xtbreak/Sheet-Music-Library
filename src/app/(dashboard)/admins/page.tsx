@@ -20,6 +20,7 @@ export default function AdminsPage() {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
+    role: "admin",
   });
   const [oldPassword, setOldPassword] = useState("");
   const [saving, setSaving] = useState(false);
@@ -43,14 +44,14 @@ export default function AdminsPage() {
   // 打开添加表单
   const openAddForm = () => {
     setEditingAdmin(null);
-    setFormData({ username: "", password: "" });
+    setFormData({ username: "", password: "", role: "admin" });
     setShowForm(true);
   };
 
   // 打开编辑表单
   const openEditForm = (admin: Admin) => {
     setEditingAdmin(admin);
-    setFormData({ username: admin.username, password: "" });
+    setFormData({ username: admin.username, password: "", role: admin.role === "viewer" ? "viewer" : "admin" });
     setOldPassword("");
     setShowForm(true);
   };
@@ -62,11 +63,15 @@ export default function AdminsPage() {
     try {
       if (editingAdmin) {
         // 编辑模式
-        const updateData: { username?: string; password?: string } = {};
+  const updateData: { username?: string; password?: string; role?: string } = {};
 
         // 如果用户名改变了
         if (formData.username !== editingAdmin.username) {
           updateData.username = formData.username;
+        }
+
+        if (formData.role !== editingAdmin.role && editingAdmin.id !== session?.user?.id) {
+          updateData.role = formData.role;
         }
 
         // 如果填写了新密码
@@ -124,7 +129,11 @@ export default function AdminsPage() {
         const res = await fetch("/api/admins", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            username: formData.username,
+            password: formData.password,
+            role: formData.role,
+          }),
         });
 
         if (res.ok) {
@@ -222,12 +231,12 @@ export default function AdminsPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">管理员管理</h1>
+        <h1 className="text-2xl font-bold text-gray-900">用户管理</h1>
         <button
           onClick={openAddForm}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
         >
-          添加管理员
+          添加用户
         </button>
       </div>
 
@@ -236,7 +245,7 @@ export default function AdminsPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-lg font-semibold mb-4">
-              {editingAdmin ? "编辑管理员" : "添加管理员"}
+              {editingAdmin ? "编辑用户" : "添加用户"}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -267,6 +276,25 @@ export default function AdminsPage() {
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder={editingAdmin ? "留空则不修改密码" : "至少6位"}
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  角色
+                </label>
+                <select
+                  value={formData.role}
+                  onChange={(e) =>
+                    setFormData({ ...formData, role: e.target.value })
+                  }
+                  disabled={editingAdmin?.id === session?.user?.id}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100 disabled:text-gray-400"
+                >
+                  <option value="admin">管理员</option>
+                  <option value="viewer">普通用户（仅浏览）</option>
+                </select>
+                {editingAdmin?.id === session?.user?.id && (
+                  <p className="text-xs text-gray-400 mt-1">不能修改自己的角色</p>
+                )}
               </div>
               <div className="flex justify-end space-x-2">
                 <button
@@ -354,8 +382,10 @@ export default function AdminsPage() {
                   <div className="flex items-center gap-2 mt-1">
                     {admin.role === "super" ? (
                       <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs">超级管理员</span>
-                    ) : (
+                    ) : admin.role === "admin" ? (
                       <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">管理员</span>
+                    ) : (
+                      <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">普通用户</span>
                     )}
                     <span className="text-xs text-gray-500">
                       {new Date(admin.createdAt).toLocaleDateString("zh-CN")}
@@ -421,8 +451,10 @@ export default function AdminsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       {admin.role === "super" ? (
                         <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs">超级管理员</span>
-                      ) : (
+                      ) : admin.role === "admin" ? (
                         <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">管理员</span>
+                      ) : (
+                        <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">普通用户</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

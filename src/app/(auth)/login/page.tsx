@@ -76,7 +76,8 @@ export default function LoginPage() {
                 type="text"
                 name="username"
                 required
-                defaultValue="admin"
+                placeholder="请输入用户名"
+                autoComplete="username"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -88,7 +89,8 @@ export default function LoginPage() {
                 type="password"
                 name="password"
                 required
-                defaultValue="admin123"
+                placeholder="请输入密码"
+                autoComplete="current-password"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
             </div>

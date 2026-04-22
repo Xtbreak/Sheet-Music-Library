@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { pinyin } from "pinyin-pro";
+import { canManageContent } from "@/lib/roles";
 
 // 获取单个歌曲详情
 export async function GET(
@@ -40,6 +41,9 @@ export async function PUT(
     const session = await auth();
     if (!session) {
       return NextResponse.json({ error: "未授权" }, { status: 401 });
+    }
+    if (!canManageContent(session.user.role)) {
+      return NextResponse.json({ error: "无权限" }, { status: 403 });
     }
 
     const { id } = await params;
@@ -86,6 +90,9 @@ export async function DELETE(
     const session = await auth();
     if (!session) {
       return NextResponse.json({ error: "未授权" }, { status: 401 });
+    }
+    if (!canManageContent(session.user.role)) {
+      return NextResponse.json({ error: "无权限" }, { status: 403 });
     }
 
     const { id } = await params;
