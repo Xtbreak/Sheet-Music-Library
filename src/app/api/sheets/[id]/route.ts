@@ -22,11 +22,16 @@ export async function PUT(
     const body = await request.json();
     const { name, keySignature, fileUrl, notes, sortOrder } = body;
 
+    const normalizedKeySignature = normalizeKeySignature(keySignature);
+    if (!normalizedKeySignature) {
+      return NextResponse.json({ error: "请选择曲调" }, { status: 400 });
+    }
+
     const sheet = await prisma.sheet.update({
       where: { id },
       data: {
         name,
-        keySignature: normalizeKeySignature(keySignature),
+        keySignature: normalizedKeySignature,
         fileUrl,
         notes,
         sortOrder,

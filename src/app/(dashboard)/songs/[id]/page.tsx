@@ -149,6 +149,11 @@ export default function SongDetailPage() {
       return;
     }
 
+    if (!sheetForm.keySignature.trim()) {
+      alert("请选择曲调");
+      return;
+    }
+
     try {
       const url = editingSheet
         ? `/api/sheets/${editingSheet.id}`
@@ -343,17 +348,21 @@ export default function SongDetailPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  曲调
+                  曲调 *
                 </label>
                 <select
+                  required
                   value={sheetForm.keySignature}
                   onChange={(e) =>
                     setSheetForm({ ...sheetForm, keySignature: e.target.value })
                   }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
-                  {KEY_SIGNATURE_OPTIONS.map((option) => (
-                    <option key={option.value || "empty"} value={option.value}>
+                  <option value="" disabled>
+                    请选择曲调
+                  </option>
+                  {KEY_SIGNATURE_OPTIONS.filter((option) => option.value).map((option) => (
+                    <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
                   ))}

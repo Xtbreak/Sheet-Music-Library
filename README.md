@@ -141,35 +141,91 @@ http://localhost:3000/api/seed
 
 ---
 
-## 生产部署（PM2）
+## 部署与命令
+
+### 首次部署
 
 ```bash
+npm install
+# 安装项目依赖
+
+npx prisma generate
+# 根据 prisma/schema.prisma 生成 Prisma Client
+
+npx prisma db push
+# 同步数据库结构；首次运行会创建 SQLite 数据库文件
+
 npm run build
-pm2 start ecosystem.config.js
+# 构建生产版本
+
+pm2 start npm --name music-demo -- start
+# 用 PM2 启动生产服务，进程名为 music-demo
+
 pm2 save
+# 保存 PM2 进程列表，方便服务器重启后恢复
 ```
 
-常用命令：
+启动后访问 `/api/seed` 初始化默认超级管理员：
+
+```text
+http://你的域名或IP/api/seed
+```
+
+默认账号：
+
+- 用户名：`admin`
+- 密码：`admin123`
+
+> 如果使用 `http://IP:3000` 访问，`.env` 中的 `NEXTAUTH_URL` 也要写成同一个地址。首次登录后请立即修改默认密码。
+
+### 更新发布
 
 ```bash
+git pull
+# 拉取最新代码
+
+npm install
+# 安装或更新依赖
+
+npx prisma generate
+# 重新生成 Prisma Client，避免字段类型不同步
+
+npx prisma db push
+# 同步数据库结构
+
+npm run build
+# 重新构建生产版本
+
 pm2 restart music-demo
-pm2 stop music-demo
-pm2 logs music-demo
+# 重启已存在的 PM2 服务
 ```
 
----
+如果 PM2 列表为空，或提示 `Process or Namespace music-demo not found`，先启动：
 
-## 常用命令
+```bash
+pm2 start npm --name music-demo -- start
+# 首次用 PM2 启动生产服务
 
-| 命令 | 说明 |
+pm2 save
+# 保存 PM2 进程列表
+```
+
+### 命令速查
+
+| 命令 | 用途 |
 | --- | --- |
-| `npm run dev` | 启动开发模式 |
+| `npm run dev` | 本地开发 |
 | `npm run build` | 生产构建 |
-| `npm run start` | 启动生产服务 |
+| `npm run start` | 直接启动生产服务 |
 | `npm run lint` | 代码检查 |
 | `npx prisma generate` | 生成 Prisma Client |
 | `npx prisma db push` | 同步数据库结构 |
 | `npx prisma studio` | 打开数据库可视化面板 |
+| `pm2 start npm --name music-demo -- start` | 首次用 PM2 启动 |
+| `pm2 restart music-demo` | 重启服务 |
+| `pm2 stop music-demo` | 停止服务 |
+| `pm2 logs music-demo` | 查看日志 |
+| `pm2 save` | 保存 PM2 进程列表 |
 
 ---
 

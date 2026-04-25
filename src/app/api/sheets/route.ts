@@ -25,11 +25,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const normalizedKeySignature = normalizeKeySignature(keySignature);
+    if (!normalizedKeySignature) {
+      return NextResponse.json({ error: "请选择曲调" }, { status: 400 });
+    }
+
     const sheet = await prisma.sheet.create({
       data: {
         songId,
         name,
-        keySignature: normalizeKeySignature(keySignature),
+        keySignature: normalizedKeySignature,
         fileUrl,
         notes,
         sortOrder: sortOrder || 0,

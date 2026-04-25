@@ -19,6 +19,14 @@ interface SheetForm {
   sortOrder: number;
 }
 
+const createEmptySheet = (sortOrder: number): SheetForm => ({
+  name: "",
+  keySignature: "",
+  fileUrl: "",
+  notes: "",
+  sortOrder,
+});
+
 export default function NewSongPage() {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -32,7 +40,7 @@ export default function NewSongPage() {
     categoryId: "",
   });
 
-  const [sheets, setSheets] = useState<SheetForm[]>([]);
+  const [sheets, setSheets] = useState<SheetForm[]>([createEmptySheet(0)]);
 
   useEffect(() => {
     fetchCategories();
@@ -49,16 +57,7 @@ export default function NewSongPage() {
   };
 
   const addSheet = () => {
-    setSheets([
-      ...sheets,
-      {
-        name: "",
-        keySignature: "",
-        fileUrl: "",
-        notes: "",
-        sortOrder: sheets.length,
-      },
-    ]);
+    setSheets([...sheets, createEmptySheet(sheets.length)]);
   };
 
   const removeSheet = (index: number) => {
@@ -123,6 +122,27 @@ export default function NewSongPage() {
       return;
     }
 
+    if (!formData.categoryId) {
+      alert("请选择分类");
+      return;
+    }
+
+    const validSheets = sheets.filter((s) => s.fileUrl);
+
+    if (validSheets.length === 0) {
+      alert("请至少上传一张曲谱图片");
+      return;
+    }
+
+    const missingKeySignature = validSheets.find(
+      (s) => !s.keySignature.trim()
+    );
+
+    if (missingKeySignature) {
+      alert("请选择曲调");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -145,7 +165,6 @@ export default function NewSongPage() {
       const song = await songRes.json();
 
       // 创建曲谱
-      const validSheets = sheets.filter((s) => s.fileUrl);
       for (const sheet of validSheets) {
         await fetch("/api/sheets", {
           method: "POST",
@@ -153,7 +172,7 @@ export default function NewSongPage() {
           body: JSON.stringify({
             songId: song.id,
             name: sheet.name || null,
-            keySignature: sheet.keySignature || null,
+            keySignature: sheet.keySignature,
             fileUrl: sheet.fileUrl || null,
             notes: sheet.notes || null,
             sortOrder: sheet.sortOrder,
@@ -203,16 +222,19 @@ export default function NewSongPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              分类
+              分类 *
             </label>
             <select
+              required
               value={formData.categoryId}
               onChange={(e) =>
                 setFormData({ ...formData, categoryId: e.target.value })
               }
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
             >
-              <option value="">选择分类</option>
+              <option value="" disabled>
+                请选择分类
+              </option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
@@ -274,17 +296,23 @@ export default function NewSongPage() {
 
                     <div>
                       <label className="block text-xs font-medium text-gray-600">
-                        曲调
+                        曲调 *
                       </label>
                       <select
+                        required
                         value={sheet.keySignature}
                         onChange={(e) =>
                           updateSheet(index, { keySignature: e.target.value })
                         }
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                       >
-                        {KEY_SIGNATURE_OPTIONS.map((option) => (
-                          <option key={option.value || "empty"} value={option.value}>
+                        <option value="" disabled>
+                          请选择曲调
+                        </option>
+                        {KEY_SIGNATURE_OPTIONS.filter(
+                          (option) => option.value
+                        ).map((option) => (
+                          <option key={option.value} value={option.value}>
                             {option.label}
                           </option>
                         ))}

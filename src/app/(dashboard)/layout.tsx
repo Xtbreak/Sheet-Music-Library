@@ -41,7 +41,7 @@ export default function DashboardLayout({
                 </Link>
               </div>
               <nav className="ml-3 sm:ml-6 flex space-x-1 sm:space-x-4">
-                {navItems.map((item, i) => (
+                {navItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
@@ -65,7 +65,11 @@ export default function DashboardLayout({
                     {session?.user?.username || session?.user?.name || "已登录"}
                   </span>
                   <button
-                    onClick={() => signOut({ redirect: false }).then(() => router.push("/"))}
+                    onClick={() =>
+                      signOut({ redirect: false }).then(() =>
+                        router.push("/login")
+                      )
+                    }
                     className="text-xs sm:text-sm text-red-600 hover:text-red-800"
                   >
                     退出

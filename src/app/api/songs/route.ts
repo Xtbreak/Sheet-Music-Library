@@ -83,6 +83,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "歌曲标题不能为空" }, { status: 400 });
     }
 
+    if (!categoryId) {
+      return NextResponse.json({ error: "请选择分类" }, { status: 400 });
+    }
+
     // 生成拼音
     const titlePinyin = pinyin(title, { toneType: "none", type: "array" }).join("");
 
@@ -95,7 +99,7 @@ export async function POST(request: NextRequest) {
         titlePinyin,
         lyrics: lyrics || "",
         lyricsPlain,
-        categoryId: categoryId || null,
+        categoryId,
       },
       include: {
         category: true,

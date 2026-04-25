@@ -50,6 +50,10 @@ export async function PUT(
     const body = await request.json();
     const { title, lyrics, categoryId } = body;
 
+    if (!categoryId) {
+      return NextResponse.json({ error: "请选择分类" }, { status: 400 });
+    }
+
     // 生成拼音
     const titlePinyin = title
       ? pinyin(title, { toneType: "none", type: "array" }).join("")
@@ -65,7 +69,7 @@ export async function PUT(
         titlePinyin,
         lyrics,
         lyricsPlain,
-        categoryId: categoryId || null,
+        categoryId,
       },
       include: {
         category: true,

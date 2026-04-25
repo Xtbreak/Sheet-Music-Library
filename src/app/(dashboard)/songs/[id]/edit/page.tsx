@@ -167,6 +167,21 @@ export default function EditSongPage() {
       return;
     }
 
+    if (!formData.categoryId) {
+      alert("请选择分类");
+      return;
+    }
+
+    const activeSheets = sheets.filter((sheet) => !sheet._deleted);
+    const missingKeySignature = activeSheets.find(
+      (sheet) => sheet.fileUrl && !sheet.keySignature.trim()
+    );
+
+    if (missingKeySignature) {
+      alert("请选择曲调");
+      return;
+    }
+
     setSaving(true);
 
     try {
@@ -175,7 +190,7 @@ export default function EditSongPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          categoryId: formData.categoryId || null,
+          categoryId: formData.categoryId,
         }),
       });
 
@@ -195,7 +210,7 @@ export default function EditSongPage() {
             body: JSON.stringify({
               songId: params.id,
               name: sheet.name || null,
-              keySignature: sheet.keySignature || null,
+              keySignature: sheet.keySignature,
               fileUrl: sheet.fileUrl || null,
               notes: sheet.notes || null,
               sortOrder: sheet.sortOrder,
@@ -207,7 +222,7 @@ export default function EditSongPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               name: sheet.name || null,
-              keySignature: sheet.keySignature || null,
+              keySignature: sheet.keySignature,
               fileUrl: sheet.fileUrl || null,
               notes: sheet.notes || null,
               sortOrder: sheet.sortOrder,
@@ -262,16 +277,19 @@ export default function EditSongPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              分类
+              分类 *
             </label>
             <select
+              required
               value={formData.categoryId}
               onChange={(e) =>
                 setFormData({ ...formData, categoryId: e.target.value })
               }
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
             >
-              <option value="">选择分类</option>
+              <option value="" disabled>
+                请选择分类
+              </option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
@@ -352,17 +370,23 @@ export default function EditSongPage() {
 
                       <div>
                         <label className="block text-xs font-medium text-gray-600">
-                          曲调
+                          曲调 *
                         </label>
                         <select
+                          required
                           value={sheet.keySignature}
                           onChange={(e) =>
                             updateSheet(index, { keySignature: e.target.value })
                           }
                           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                         >
-                          {KEY_SIGNATURE_OPTIONS.map((option) => (
-                            <option key={option.value || "empty"} value={option.value}>
+                          <option value="" disabled>
+                            请选择曲调
+                          </option>
+                          {KEY_SIGNATURE_OPTIONS.filter(
+                            (option) => option.value
+                          ).map((option) => (
+                            <option key={option.value} value={option.value}>
                               {option.label}
                             </option>
                           ))}
